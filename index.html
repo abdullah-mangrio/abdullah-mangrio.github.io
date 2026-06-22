@@ -200,6 +200,21 @@ section{position:relative;z-index:1}
 .modal-stack{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:0.5rem}
 .modal-links{display:flex;gap:1rem;margin-top:1.4rem;flex-wrap:wrap}
 
+/* GALLERY */
+.modal-gallery{margin-top:0.5rem}
+.gallery-main-wrap{position:relative;display:flex;align-items:center;gap:0.5rem;background:var(--bg3);border:1px solid var(--border);border-radius:8px;overflow:hidden;height:220px}
+.gallery-main-img-wrap{flex:1;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.gallery-main-img{max-width:100%;max-height:100%;object-fit:contain;display:block;transition:opacity 0.25s ease}
+.gallery-main-img.fade{opacity:0}
+.gallery-arrow{background:rgba(124,109,250,0.15);border:1px solid rgba(124,109,250,0.3);color:var(--accent);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;z-index:2;margin:0 0.5rem}
+.gallery-arrow:hover{background:rgba(124,109,250,0.4)}
+.gallery-arrow:disabled{opacity:0.25;cursor:default}
+.gallery-thumbs{display:flex;gap:0.5rem;margin-top:0.6rem;flex-wrap:wrap}
+.gallery-thumb{width:56px;height:42px;border-radius:4px;object-fit:cover;cursor:pointer;border:2px solid transparent;opacity:0.55;transition:all 0.2s;background:var(--bg3)}
+.gallery-thumb.active{border-color:var(--accent);opacity:1}
+.gallery-thumb:hover{opacity:0.9}
+.gallery-counter{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--muted);margin-top:0.4rem;letter-spacing:0.08em}
+
 /* TIMELINE */
 .timeline{position:relative;padding-left:2rem}
 .timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,var(--accent),rgba(124,109,250,0.1))}
@@ -297,6 +312,20 @@ footer{padding:2rem 3rem;border-top:1px solid var(--border);display:flex;justify
     <button class="modal-close" onclick="closeModalDirect()">✕</button>
     <div class="modal-tag" id="modal-num"></div>
     <div class="modal-title" id="modal-title"></div>
+    <div class="modal-section" id="modal-images-section" style="display:none">
+      <div class="modal-section-label">Screenshots</div>
+      <div class="modal-gallery">
+        <div class="gallery-main-wrap">
+          <button class="gallery-arrow" id="gallery-prev" onclick="galleryNav(-1)">&#8592;</button>
+          <div class="gallery-main-img-wrap">
+            <img id="gallery-main-img" src="" alt="Project screenshot" class="gallery-main-img"/>
+          </div>
+          <button class="gallery-arrow" id="gallery-next" onclick="galleryNav(1)">&#8594;</button>
+        </div>
+        <div class="gallery-thumbs" id="gallery-thumbs"></div>
+        <div class="gallery-counter" id="gallery-counter"></div>
+      </div>
+    </div>
     <div class="modal-section"><div class="modal-section-label">Problem</div><div class="modal-text" id="modal-problem"></div></div>
     <div class="modal-section"><div class="modal-section-label">Approach</div><div class="modal-text" id="modal-approach"></div></div>
     <div class="modal-section"><div class="modal-section-label">Outcome</div><div class="modal-text" id="modal-outcome"></div></div>
@@ -335,7 +364,7 @@ footer{padding:2rem 3rem;border-top:1px solid var(--border);display:flex;justify
   <div class="hero-photo-wrap">
     <div class="hero-photo-border"></div>
     <div class="hero-photo-inner"><img src="profile.jpeg" alt="Abdullah Mangrio — Full-Stack Developer"></div>
-    <div class="hero-photo-tag"><span class="avail-dot"></span>Seeking Internships · 2026</div>
+    <div class="hero-photo-tag"><span class="avail-dot"></span>Open For Work · 2026</div>
   </div>
   <div class="scroll-indicator"><div class="scroll-line"></div><span class="scroll-txt">Scroll</span></div>
 </section>
@@ -508,7 +537,7 @@ footer{padding:2rem 3rem;border-top:1px solid var(--border);display:flex;justify
         <div class="project-stack"><span class="project-tag">Java</span><span class="project-tag">Java Swing</span><span class="project-tag">OOP</span><span class="project-tag">UML</span></div>
         <div class="project-footer">
           <div class="project-links">
-            <a href="https://github.com/abdullah-mangrio/it-complaint-system" class="proj-link" target="_blank">
+            <a href="https://github.com/abdullah-mangrio/ITComplaintSystem" class="proj-link" target="_blank">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>GitHub
             </a>
           </div>
@@ -805,30 +834,57 @@ document.querySelectorAll('.project-card').forEach(card=>{
 /* MODAL DATA */
 const projects=[
   {num:'01 / Featured',title:'SafeCity PK',
+   images:['screenshots/spk-1.png','screenshots/spk-2.png','screenshots/spk-3.png','screenshots/spk-4.png','screenshots/spk-5.png','screenshots/spk-6.png','screenshots/spk-7.png','screenshots/spk-8.png','screenshots/spk-9.png'],
    problem:'Pakistan has no centralized, real-time system for citizens to report and visualize crime in their neighborhoods. Existing mechanisms are offline, opaque, and slow.',
    approach:'Built a full-stack crime intelligence platform — React/Leaflet for the interactive crime map, FastAPI/PostgreSQL for the backend. Implemented JWT auth with 3-tier RBAC (admin, analyst, operator), citizen report submission with admin verification workflows, and a complete audit logging system. Designed PostgreSQL schema for hotspot detection and dangerous-hours analysis.',
    outcome:'Production-ready platform with real-time DB-powered maps, spatial analytics, and role-based access. ML crime prediction module planned using historical spatial/temporal patterns.',
    stack:['React','Vite','FastAPI','PostgreSQL','JWT','Leaflet.js','RBAC','Python'],
    links:[{text:'GitHub →',url:'https://github.com/abdullah-mangrio/safecity-pk'}]},
   {num:'02',title:'PakUniInfo',
+   images:['screenshots/pui-landing.png','screenshots/pui-admin.png','screenshots/pui-explore.png','screenshots/pui-shortlist.png','screenshots/pui-compare.png'],
    problem:'Pakistani students have no single platform to discover and filter universities. Resources are scattered, outdated, and hard to navigate.',
    approach:'Full-stack platform with React multi-filter search (province, city, program, fee range) and Node.js/Express/MongoDB backend. Secured admin panel with JWT for CRUD management. Frontend on Netlify, backend on Render.',
    outcome:'Live at pakuniinfo.netlify.app — used by students exploring Pakistani universities. Admin panel allows real-time data updates without code changes.',
    stack:['React','Node.js','Express','MongoDB Atlas','JWT','Netlify','Render'],
    links:[{text:'Live Site →',url:'https://pakuniinfo.netlify.app'},{text:'GitHub →',url:'https://github.com/abdullah-mangrio/pakuniinfo'}]},
   {num:'03',title:'IT Complaint Management System',
+   images:['screenshots/it-1.png','screenshots/it-2.png','screenshots/it-3.png','screenshots/it-4.png','screenshots/it-5.png','screenshots/it-6.png','screenshots/it-7.png','screenshots/it-8.png','screenshots/it-9.png','screenshots/it-10.png','screenshots/it-11.png','screenshots/it-12.png','screenshots/it-13.png','screenshots/it-14.png','screenshots/it-15.png'],
    problem:'IT departments lack efficient tools to track, assign, and resolve equipment complaints. Manual systems cause delays and accountability gaps.',
    approach:'Designed the full software lifecycle: SRS → UML diagrams → working Java Swing desktop app. Applied OOP design patterns — Singleton for DB connection, Template Method for complaint workflows, Strategy for role-based behavior. Role-based dashboards for each user type.',
    outcome:'Fully functional desktop app covering all 20 functional requirements. Demonstrates system design ability from requirements through to delivered code.',
    stack:['Java','Java Swing','OOP','UML','Singleton','Template Method','Strategy Pattern'],
-   links:[{text:'GitHub →',url:'https://github.com/abdullah-mangrio/it-complaint-system'}]},
+   links:[{text:'GitHub →',url:'https://github.com/abdullah-mangrio/ITComplaintSystem'}]},
   {num:'04 / Freelance',title:'YouTube Playlist Tracker',
+   images:[],
    problem:'A client managing 900+ YouTube playlists had no efficient way to catalog them, track progress, or collaborate in real time. Spreadsheets were slow and error-prone.',
    approach:'Firebase Realtime Database–powered web app with multi-user live sync, duplicate detection on CSV import, export functionality, and a progress tracking system. Deployed to GitHub Pages for zero-cost hosting.',
    outcome:'Delivered to a paying client and actively used in production. Demonstrated ability to scope, build, and ship a freelance project independently.',
    stack:['JavaScript','Firebase Realtime DB','GitHub Pages','CSV I/O'],
    links:[{text:'Live Site →',url:'https://abdullah-mangrio.github.io/playlist-tracker'}]}
 ];
+
+let galleryImages=[], galleryIndex=0;
+
+function galleryNav(dir){
+  if(!galleryImages.length) return;
+  galleryIndex=(galleryIndex+dir+galleryImages.length)%galleryImages.length;
+  setGalleryImage(galleryIndex);
+}
+
+function setGalleryImage(i){
+  const mainImg=document.getElementById('gallery-main-img');
+  mainImg.classList.add('fade');
+  setTimeout(()=>{
+    mainImg.src=galleryImages[i];
+    mainImg.onload=()=>mainImg.classList.remove('fade');
+    mainImg.onerror=()=>mainImg.classList.remove('fade');
+  },200);
+  document.querySelectorAll('.gallery-thumb').forEach((t,idx)=>t.classList.toggle('active',idx===i));
+  document.getElementById('gallery-counter').textContent=`${i+1} / ${galleryImages.length}`;
+  document.getElementById('gallery-prev').disabled=(i===0);
+  document.getElementById('gallery-next').disabled=(i===galleryImages.length-1);
+  galleryIndex=i;
+}
 
 function openModal(i){
   const p=projects[i];
@@ -839,6 +895,20 @@ function openModal(i){
   document.getElementById('modal-outcome').textContent=p.outcome;
   document.getElementById('modal-stack').innerHTML=p.stack.map(s=>`<span class="project-tag">${s}</span>`).join('');
   document.getElementById('modal-links').innerHTML=p.links.map(l=>`<a href="${l.url}" target="_blank" class="btn btn-secondary" style="font-size:0.76rem;padding:0.45rem 1.1rem">${l.text}</a>`).join('');
+  const imgSection=document.getElementById('modal-images-section');
+  const imgs=p.images||[];
+  if(imgs.length){
+    galleryImages=imgs; galleryIndex=0;
+    document.getElementById('gallery-main-img').src=imgs[0];
+    document.getElementById('gallery-main-img').classList.remove('fade');
+    document.getElementById('gallery-prev').disabled=true;
+    document.getElementById('gallery-next').disabled=(imgs.length<=1);
+    document.getElementById('gallery-counter').textContent=`1 / ${imgs.length}`;
+    document.getElementById('gallery-thumbs').innerHTML=imgs.map((src,idx)=>`<img src="${src}" class="gallery-thumb${idx===0?' active':''}" onclick="setGalleryImage(${idx})" alt="Screenshot ${idx+1}">`).join('');
+    imgSection.style.display='';
+  } else {
+    imgSection.style.display='none';
+  }
   document.getElementById('modal-overlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
